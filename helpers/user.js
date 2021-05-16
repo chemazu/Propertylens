@@ -1,12 +1,10 @@
-const bcrypt = require("bcrypt");
-const passport = require("passport");
+const bcrypt = require("bcryptjs");
+const User = require("../models/user.model");
 
 module.exports = {
   registerHandler: async (req, res, next) => {
-    const { name, email, password, accountType } = req.body;
-    const hashedpassword = await bcrypt.hash(password, 10);
+    const { name, email, password, accountType, craft } = req.body;
     let errors = [];
-
     if (!name || !email || !password) {
       errors.push({ msg: "Please fill all the fields" });
       res.status(200).json(errors);
@@ -23,15 +21,23 @@ module.exports = {
             errors.push({ msg: "Email already Linked to an account" });
             res.status(200).json(errors);
           } else {
-            const newUSer = new User({
+            const newUser = new User({
               name,
               email,
-              password: hashedpassword,
+              password,
               accountType,
+              craft,
             });
-            newUSer.save().then((user) => {
-              res.status(200).json("user sucessfully added");
-              console.log(user);
+            bcrypt.genSalt(10, (err, salt) => {
+              bcrypt.hash(newUser.password, salt, (err, hash) => {
+                newUser.password = hash;
+                newUser
+                  .save()
+                  .then((user) => {
+                    console.log(user);
+                  })
+                  .catch((err) => console.log(err));
+              });
             });
           }
         });
@@ -42,12 +48,6 @@ module.exports = {
     next();
   },
   loginHandler: (req, res, next) => {
-    passport.authenticate("local", {
-      successRedirect: "/dashboard",
-      failureRedirect: "/users/login",
-      failureFlash: true,
-    })(req, res, next);
+    console.log("logged In");
   },
 };
-
-const User = require("../models/user.model");

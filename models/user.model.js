@@ -7,6 +7,7 @@ const userSchema = new schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     accountType: { type: String, required: true },
+    craft: { type: String, required: true },
     date: { type: Date, default: Date.now },
   },
   { timestamps: true }

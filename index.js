@@ -2,21 +2,22 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const passport = require("passport");
+const expressLayouts = require("express-ejs-layouts");
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || PORT;
 
-require("./config/passport")(passport);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(passport.initialize());
 app.use(cors());
 
+//ejs
+app.use(expressLayouts);
+app.set("view engine", "ejs");
+//mongoose
 const db = process.env.mongoURI;
-
 mongoose
   .connect(db, {
     useNewUrlParser: true,
